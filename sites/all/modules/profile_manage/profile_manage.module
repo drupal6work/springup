@@ -1,0 +1,458 @@
+<?php
+
+  /**
+ * @file
+ * Profile manage to manage site members.
+ */
+
+/**
+ * Implements is_member().
+ */
+function is_member() {
+  global $user;
+  if(in_array('member', $user->roles)) {
+    return TRUE;
+  }
+  if(in_array('administrator', $user->roles)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function profile_manage_menu() {
+  $items['profile/block/position'] = array(
+    'page callback' => 'profile_block_position',
+    'access callback' => TRUE,  
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['profile/%user/edit/password'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_profile_form', 1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'user.pages.inc',
+    'file path' => drupal_get_path('module','user'),  
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter.
+ * Check access for forum menu item.
+ */
+function profile_manage_menu_alter(&$items) {
+
+}
+
+/*
+ * Implements hook_FORM_ID_form_alter().
+ */
+function profile_manage_form_alter(&$form, $form_state, $form_id) {
+  
+  if($form_id != 'favorites_add_favorite_form' 
+          && $form_id != 'user_pass_reset' 
+          && $form_id != 'user_login'
+          && $form_id != 'user_pass'
+		  && $form_id != 'user_singup_form' ) {
+    $form['#attributes']['class'][] = 'form-inline'; 
+  }
+  
+  if($form_id == 'contact_site_form') {
+    drupal_set_title('Contact Us');
+    $form['#submit'][] = 'contact_us_redirect_submit';
+  }
+  
+  if($form_id == 'user_login') {   
+    $form['#submit'][] = 'profile_manage_user_login_submit';   
+    $form['pass']['#suffix'] = '<a href="/user/password">Forgot?</a>';
+  }
+  
+  if($form_id == 'user_pass') {
+    $form['#submit'][] = 'user_pass_redirect_submit';   
+  }
+  
+  if($form_id == 'user_pass_reset') {
+    drupal_set_title('Password Setup');
+    $uid = arg(2);
+    $account = user_load($uid);
+    $timeout = variable_get('user_password_reset_timeout', 86400);
+    $timestamp = arg(3);
+    $form['message'] = array('#markup' => t('<p>This is a one-time login for %user_name and will expire on %expiration_date.</p><p>Click on this button to log in to the site and change your password.</p>', 
+        array('%user_name' => $account->mail, '%expiration_date' => format_date($timestamp + $timeout))));
+
+  }
+  
+  if($form_id == 'user_profile_form') {
+    drupal_set_title('My Profile');
+    if(isset($_GET['pass-reset-token'])){
+      $form['#submit'][] = 'pass_reset_redirect';
+    }
+    
+    if(!is_member()) {
+      if(!empty($form['profile_my_work']) && isset($form['profile_my_work']['field_work_image']) ) {
+        $lang = $form['profile_my_work']['field_work_image']['#language'];
+        $last = $form['profile_my_work']['field_work_image'][$lang]['#file_upload_delta'];
+        if( $last == 4) {
+          unset($form['profile_my_work']['field_work_image'][$lang][$last]);
+        }
+      }  
+    }
+    
+    if(is_member() && $form['#user_category'] == 'account' && !empty($form['#user']->uid)) {
+      
+      $profile_url = url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q=') . 'up/';
+      $form['field_profile_url']['und'][0]['value']['#field_prefix'] = $profile_url;
+      $form['#validate'][] = 'view_profile_url_validate';
+	  
+      $current = $form['field_profile_url']['und'][0]['value']['#default_value'];
+      $email = $form['#user']->mail;
+      if(_is_profile_url_editable($current, $email)) {
+        watchdog('INSIDE', 'INSIDE EDIT');
+        $form['field_profile_url']['und'][0]['value']['#attributes']['disabled'] = TRUE;
+      }
+      
+    }else {
+      $form['field_profile_url']['#prefix'] = '<div style="display:none;">';
+      $form['field_profile_url']['#suffix'] = '</div>';
+    }
+    
+    if($form['#user_category'] == 'account' && !empty($form['#user']->uid)) {
+      if(arg(0) == 'profile' && arg(3) == 'password') {
+        
+        drupal_set_title('Password Settings');
+        if(isset($form['account']['profile_path']))  {
+          $form['account']['profile_path']['#prefix'] = '<div style="display:none;">';
+          $form['account']['profile_path']['#suffix'] = '</div>';
+        }
+        
+        $form['account']['mail']['#prefix'] = '<div style="display:none;">';
+        $form['account']['mail']['#suffix'] = '</div>';
+        $form['field_publish_profile']['#prefix'] = '<div style="display:none;">';
+        $form['field_publish_profile']['#suffix'] = '</div>';
+        $form['contact']['#prefix'] = '<div style="display:none;">';
+        $form['contact']['#suffix'] = '</div>';
+       
+        $form['privatemsg']['#prefix'] = '<div style="display:none;">';
+        $form['privatemsg']['#suffix'] = '</div>';
+        $form['field_profile_url']['#prefix'] = '<div style="display:none;">';
+        $form['field_profile_url']['#suffix'] = '</div>';
+
+        
+        $element_info = element_info('password_confirm');
+        $process = $element_info['#process'];
+        $process[] = 'profile_manage_password_confirm';
+        $form['account']['pass']['#process'] =  $process;
+		
+      
+      }else {
+       drupal_set_title('General Settings');
+       $form['account']['pass']['#prefix'] = '<div style="display:none;">';
+       $form['account']['pass']['#suffix'] = '</div>';
+       $form['account']['current_pass']['#prefix'] = '<div style="display:none;">';
+       $form['account']['current_pass']['#suffix'] = '</div>';
+       $form['contact']['#prefix'] = '<div style="display:none;">';
+       $form['contact']['#suffix'] = '</div>';       
+       $key1 = array_search('user_validate_current_pass', $form['#validate']);
+       unset($form['#validate'][$key1]);
+      }
+    }
+    
+    $uid = arg(1);
+    $url = 'user/'. $uid;
+    if(!is_numeric($uid)) {
+      $url = 'user';  
+    }    
+    $form['actions']['cancel'] = array(
+       '#markup' => l(t('Cancel'), drupal_get_path_alias($url), array('attributes' => array('class' => array('form-submit'))) ),
+    );
+  }
+  if($form_id == 'views_exposed_form') {
+	$form['#attributes']['class'] = array('navbar-form' , 'navbar-left', 'springUpSearch-form');
+	$form['combine']['#attributes'] = array('class' => array('form-control' , 'sprinUpSearch'), 'placeholder' => 'Name of business, person, etc.');
+	$form['submit']['#attributes'] = array('class' => array('btn', 'sprinUpSearchIcon'));
+	$form['combine']['#suffix'] = '<span class="glyphicon glyphicon-search"></span>';//<div style="display:none;">';
+        $form['combine']['#theme_wrappers'] = array();
+        $form['submit']['#theme_wrappers'] = array();
+  }
+  if($form_id == 'privatemsg_new') {
+    if(arg(0) == 'user' && arg(1) != ''){
+      drupal_set_title('');
+      $uid = arg(1);
+      $account = user_load($uid);
+      $form['recipient']['#default_value'] = $account->name;
+      $form['recipient']['#prefix'] = '<div class="element-invisible">';
+      $form['recipient']['#suffix'] = '</div>';
+      $form['body']['#format'] = 'plain_text';
+      $form['actions']['submit']['#attributes']['class'] = array('btn', 'btn-warning', 'btn-block');
+      $form['#submit'][] = 'message_send_redirect';
+      unset($form['actions']['cancel']);
+    }
+  }
+  if($form_id == 'privatemsg_new' || $form_id == 'privatemsg_list') {
+    if(arg(1) == 'new') {
+      drupal_set_title('Write message');
+    }elseif(arg(1) == 'sent') {
+      drupal_set_title('Sent Messages');
+    }elseif(arg(1) == 'list') {
+      drupal_set_title('All Messages');
+    }elseif(arg(1) == ''){
+      drupal_set_title('Inbox');
+    }
+  }
+  
+}
+
+
+function profile_manage_password_confirm(&$element) {
+  $element['pass1']['#title'] = t("New Password");
+  $element['pass2']['#title'] = t("Confirm New Password");
+  return $element;
+}
+
+function pass_reset_redirect($form, &$form_state) {
+  global $user;
+  $form_state['redirect'] = drupal_get_path_alias('user/'. $user->uid);
+}
+
+function user_pass_redirect_submit($form, &$form_state) {
+  if(isset($_SESSION['contact_us_email'])) {
+    unset($_SESSION['contact_us_email'] );
+  }
+  $_SESSION['contact_us_email'] = $form_state['values']['name'];
+  $form_state['redirect'] = url('password-reset');
+}
+
+function contact_us_redirect_submit($form, &$form_state) {
+   $form_state['redirect'] = url('thank-you-for-contact-us');
+}
+
+function profile_manage_user_login_submit($form, &$form_state) {
+  $form_state['redirect'] = url('welcome');
+}
+
+function message_send_redirect($form, &$form_state) {
+  $form_state['redirect'] = drupal_get_path_alias('user/'. arg(1));
+}
+
+/*
+ * Implements hook_form_validate().
+ */
+function view_profile_url_validate($form, &$form_state) {
+  $alias = trim($form_state['values']['field_profile_url']['und'][0]['value']);
+  $source = 'user/'.$form_state['user']->uid;
+  $pid = db_query('SELECT pid FROM {url_alias} WHERE alias=:alias AND source != :source', 
+          array(':alias'=> 'up/' . $alias, ':source' => $source))->fetchField();
+
+  watchdog('current_alias', 'alias='. $alias . ' source='. $source. ' pid='. $pid);
+  if(!empty($pid)){
+    form_set_error('field_profile_url', t('URL already used.'));
+  }
+  if(!preg_match('/^[a-z0-9\-]+$/i', $alias)) {
+    form_set_error('field_profile_url', t('Invalid input. Allowed character [a-z, A-Z, 0-9, -]'));
+  }
+}
+
+function profile_manage_user_view($account, $view_mode, $langcode) {
+  global $user;
+  $like_uid = arg(1);
+  $like = '<i class="glyphicon glyphicon-thumbs-up"></i>';
+  
+  if($user->uid != $like_uid && $user->uid > 1 && user_is_logged_in()) {	
+    $status = db_query('SELECT count(*) as status from {profile_like} WHERE uid=:uid AND like_uid=:like_uid', 
+    array(':uid' => $user->uid , ':like_uid' => $like_uid))->fetchField();
+    if(empty($status)) {  
+      ctools_include('ajax');
+      $like = ctools_ajax_text_button($like, "profilelike/nojs/vote/$like_uid", t(''));
+    }
+  }	
+  $count = db_query('SELECT count(*) as Total from {profile_like} WHERE like_uid=:like_uid', 
+	array(':like_uid' => arg(1)))->fetchField();
+
+  if(empty($count)) {
+	$count = 0;
+  }
+  if(!user_is_logged_in()) {
+    $like = '<a href="'.url('user/login').'">' . $like . '</a>'; 
+  }
+  
+  $key = 999999;
+  if(isset($account->content['profile_about_us'])) {
+    $profile_keys = array_keys($account->content['profile_about_us']['view']['profile2']);
+    $key = reset($profile_keys);
+  }
+  $account->content['profile_about_us']['view']['profile2'][$key]['profile_like'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t(''),
+    '#markup' => $like . '<span> ' . $count . ' Supporters</span>' ,
+    '#weight' => -100
+  );
+
+  /*
+   * Manage About Me content display in two different section
+   * Custom display is created and assign it to new custom 
+   * user display
+   */
+  $object = $account->content['profile_about_us']['view']['profile2'][$key];
+  
+  watchdog('PUBLISH', ' ==>' . '!debug', array('!debug' => '<pre>' . check_plain(print_r($object, TRUE)) . '</pre>'));
+  
+  $about['field_about_image'] = isset($object['field_about_image']) ? $object['field_about_image'] : '';
+  $about['field_about_me'] = isset($object['field_about_me']) ? $object['field_about_me'] : '';
+  $about['field_public_status'] = isset($object['#entity']->field_public_status) ? $object['#entity']->field_public_status : '';
+  $about['field_block_position'] = isset($object['field_block_position']) ? $object['field_block_position'] : '';
+  
+  $offer['field_offer_image'] = isset($object['field_offer_image']) ? $object['field_offer_image'] : '';
+  $offer['field_we_offer'] = isset($object['field_we_offer']) ? $object['field_we_offer'] : '';
+  $offer['field_public_status'] = isset($object['#entity']->field_publish_offer) ? $object['#entity']->field_publish_offer : '';
+  $offer['field_block_position'] = isset($object['field_offer_position']) ? $object['field_offer_position'] : '';
+ 
+  drupal_set_title($object['field_user_name']['#items'][0]['value']);
+  if (!isset($account->content['profile_about_me'])) {
+    $account->content['profile_about_me'] = array();
+  }
+  
+  if (!isset($account->content['profile_offer'])) {
+    $account->content['profile_offer'] = array();
+  }
+  
+  $account->content['profile_about_me'] += array(
+    '#type' => 'user_profile_category',
+    '#title' => t('About Me'),
+    '#prefix' => '<a id="profile-about-me"></a>',
+    '#weight' => 3,
+    '#theme' => 'profile_about_me'
+  );
+  $account->content['profile_about_me']['view'] = $about;
+  
+  $account->content['profile_offer'] += array(
+    '#type' => 'user_profile_category',
+    '#title' => t('Products and Services'),
+    '#prefix' => '<a id="profile-about-me"></a>',
+    '#weight' => 4,
+    '#theme' => 'profile_offer'
+  );
+  $account->content['profile_offer']['view'] =  $offer;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function profile_manage_field_extra_fields() {
+  $return['user']['user'] = array(
+    'display' => array(
+      'profile_about_me' => array(
+        'label' => t('Custom: About Me'),
+        'description' => t('Profile custom about me.'),
+        'weight' => 3,
+      ),
+      'profile_offer' => array(
+        'label' => t('Custom: Products and Services'),
+        'description' => t('Profile custom offer.'),
+        'weight' => 4,
+      ),
+    ),
+  );
+
+  return $return;
+}
+
+
+function style_pic($style = 'profile_pic' , $account = NULL){
+  global $user; 
+  if(!$account) {
+    $account = $user;
+  }
+  
+  if (!empty($account->picture)) {
+    if (is_numeric($account->picture)) {
+     $picture = file_load($account->picture);
+    }
+    if (!empty($picture->uri)) {
+      $filepath = $picture->uri;
+    }elseif(!empty($account->picture->uri)) {
+      $filepath = $account->picture->uri;
+    }
+  }else {
+    $filepath = base_path().drupal_get_path('theme', 'springup').'/images/user.png' ;
+  }
+  if (isset($filepath)) {    
+    if(file_valid_uri($filepath)){
+      $image = theme('image_style', array('style_name' => $style, 'path' => $filepath));
+    }else{
+      $image = theme('image', array('path' => $filepath));
+    }
+  }else{
+    $image = '';
+  }
+  
+  return $image ;
+}
+
+function is_author($uid) {
+	global $user;
+	if($user->uid == $uid) {
+		return TRUE;
+	}
+ return FALSE;	
+}
+
+function profile_block_position(){
+  if(!empty($_POST['data'])) {
+    global $user;
+    $string = $_POST['data'];
+    $pos = explode('||', $string);
+    $user->data['profile_view'] = $pos;
+    user_save($user);
+  }
+}
+
+function _is_published( $profile, $field ) {
+  if(!is_author(arg(1))) {
+	if(!empty($profile['view']['profile2'])) {
+		$key  = array_keys($profile['view']['profile2']);
+		$pid = reset($key);
+		if(is_numeric($pid)) {
+		  if(isset($profile['view']['profile2'][$pid]['field_public_status']['#items'][0]['value'])) {
+			$status = $profile['view']['profile2'][$pid]['field_public_status']['#items'][0]['value'];
+			watchdog('STATYSU', $field . ' ==>' . $status );
+			if($status) {
+				return TRUE;
+			}
+		  }
+		}
+	}
+	if(isset($profile['view']) && !isset($profile['view']['profile2'])) {
+		if(isset($profile['view']['field_public_status']['und'][0]['value'])) {
+			$status = $profile['view']['field_public_status']['und'][0]['value'];
+			watchdog('STATYSU', $field . ' ==>' . $status );
+			if($status) {
+				return TRUE;
+			}
+		}
+	}
+	if($field == 'user_profile_comments') {
+		return TRUE;
+	}
+	watchdog('Field', $field . ' ==>' . '!debug', array('!debug' => '<pre>' . check_plain(print_r($profile, TRUE)) . '</pre>'));
+	return FALSE;
+  }
+  return TRUE;
+}
+
+function _is_profile_url_editable($current, $email) { 
+  $name = preg_replace('/@.*$/', '', $email);
+  $new_name = preg_replace("/[^A-Za-z0-9]/", '', $name);
+  watchdog('IS', $current . ', ' . $email . ', ' . $new_name);
+  if(strpos($current, $new_name) === FALSE) {
+	return TRUE;
+  }
+  return FALSE;
+}

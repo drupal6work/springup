@@ -1,0 +1,1094 @@
+<?php
+
+  /**
+ * @file
+ * Recurring subscription to manage paid membership with recurring facility.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function recurring_subscription_menu() {
+  $items['sign-up'] = array(
+    'title' => t(''),
+    'page callback'   => 'drupal_get_form',
+    'page arguments'  => array('user_singup_form'),
+    'access callback' => TRUE,
+  );  
+
+  $items['create-account'] = array(
+    'title' => t('Create Account'),
+    'page callback'   => 'drupal_get_form',
+    'page arguments'  => array('create_account_form'),
+    'access callback' => 'create_account_access',
+  );
+
+  $items['user/%user/member'] = array(
+    'title' => t('Member'),
+    'page callback'   => 'member_manage_view',
+    'page arguments'  => array(1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'member.page.inc'
+  );
+ 
+  $items['user/%user/member/view'] = array(
+    'title' => 'View',
+    'page callback' => 'member_manage_view',
+    'page arguments' => array(1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'member.page.inc',
+    'weight' => 1,
+  );
+  
+  $items['user/%user/member/upgrade'] = array(
+    'title' => 'Upgrade',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('upgrade_member_form', 1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'member.page.inc',
+    'weight' => 2,
+  );
+  
+  $items['user/%user/member/cancel'] = array(
+    'title' => 'Cancel',
+    'page callback' => 'member_manage_cancel',
+    'page arguments' => array(1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'member.page.inc',
+    'weight' => 3,
+  );
+  
+  $items['admin/config/member'] = array(
+    'title' => t('Memeber management'),
+    'description' => t('Memeber management settings'),
+    'position' => 'right',
+    'weight' => 10,
+    'access arguments' => array('access administration pages')	
+  );
+  $items['admin/config/member/setting'] = array(
+    'title' => t('Cancel settings'),
+    'description' => t('Membership cancel settings'),
+    'page callback'   => 'drupal_get_form',
+    'page arguments'  => array('member_cancel_setting_form'),
+    'position' => 'right',
+    'weight' => 10,
+    'access arguments' => array('access administration pages'),
+    'file' => 'member.settings.inc',
+  );
+ return $items;
+}
+
+/*
+ * Implements hook_form()
+ * $_COOKIE['Drupal_do_social'] value is set inside function
+ * _hybridauth_window_process_auth(). its a patch to redirect 
+ * user to register page with temporary store social login data
+ * in cookie.
+ */
+function create_account_form($form, &$form_state) {
+  $order = array();
+  if(isset($_SESSION['order'])) {
+    $order = $_SESSION['order'];
+  }
+  
+  if(!empty($_SESSION['Drupal_do_social'])) {    
+    $form['social_login'] = array(
+      '#type' => 'hidden', 
+      '#value' => $_SESSION['Drupal_do_social']
+    );	
+  }
+  
+  $form += drupal_retrieve_form('user_register_form', $form_state);
+  $form['account']['name']['#type'] = 'hidden';
+  $form['account']['name']['#value'] = 'email_registration_' . user_password();
+  $form['account']['mail']['#title'] = t('E-mail');
+  $form['account']['mail']['#description'] = '';
+  $form['account']['mail_confirm'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Confirm e-mail address'),
+    '#maxlength' => EMAIL_MAX_LENGTH,
+    //'#description' => t('Please confirm your e-mail address.'),
+    '#required' => TRUE,
+     '#weight' => 5
+  );  
+  // Account detail profile management  
+  $type = 'about_us';//'account_details' ;
+  $form_state['profiles'][$type] = profile2_create(array('type' => $type));  
+  profile2_attach_form($form, $form_state);
+  
+  unset($form['profile_about_us']['field_role_occupation']);
+  unset($form['profile_about_us']['field_business_name']);
+  unset($form['profile_about_us']['field_summery']);  
+  unset($form['profile_about_us']['field_about_image']);
+  unset($form['profile_about_us']['field_about_me']);
+  unset($form['profile_about_us']['field_offer_image']);
+  unset($form['profile_about_us']['field_we_offer']);
+  
+  unset($form['profile_about_us']['field_block_position']);
+  unset($form['profile_about_us']['field_public_status']);
+  unset($form['profile_about_us']['field_offer_position']);
+  unset($form['profile_about_us']['field_publish_offer']);
+  
+  hide($form['profile_about_us']['field_user_avatar']);
+      
+  //Credit card management
+  $method = 'free';
+  if( isset($order['sell_price']) && isset($order['recurring']) && ($order['sell_price'] + $order['recurring']) > 0 ) {
+    
+    $d_plan_id = $order['plan_id'];    
+    $d_terms = entity_load('taxonomy_term', FALSE, array('tid' => $d_plan_id));
+    $d_display = '0.00';
+    $d_sell = '0.00';
+    $discount = '0.00';
+    $pt = '';
+    $c = '0.00';
+    if(!empty($d_terms)) {
+      foreach($d_terms as $d_term) {
+        $d_display = $d_term->field_display_price['und'][0]['value'];
+        $d_sell = $d_term->field_sell_price['und'][0]['value'];
+        $discount = $d_display - $d_sell;
+      }
+    }
+    if(!empty($order['package'])) {
+      foreach($order['package'] as $d_tids) {
+        $d_tid = $d_tids['tid'];
+        $p_terms = entity_load('taxonomy_term', FALSE, array('tid' => $d_tid));
+        if(!empty($p_terms)) {
+          foreach($p_terms as $p_term) {
+            $c = $p_term->field_sell_price['und'][0]['value'];
+            $pt .= '<tr><td> Add '.$p_term->name.'</td><td class="color pri">$'.round($c, 2).' AUD</td></tr>';
+          }
+        }
+      }
+    }    
+    $out  = '<div class="purchase-plan">';
+    $out .= '  <div class="plan-price">$'. round($order['sell_price'],2) .' AUD</div>';
+    $out .= '  <div class="table-plan">';
+    $out .= '    <table>';
+    $out .= '      <tr><td>Annual Membership Plan</td><td class="color pri">$'. round($d_display, 2) .' AUD</td></tr>';
+    $out .=           $pt; 
+    $out .= '      <tr><td>Less Promotion Discount</td><td class="color pri">$'.round($discount, 2).' AUD</td></tr>';
+    $out .= '      <tr><td>Total Due Today</td><td class="color pri">$'. round($order['sell_price'],2) .' AUD</td></tr>';
+    $out .= '    </table>';
+    $out .= '	</div>';
+    $out .= '</div>';
+    
+    $form['display'] = array(
+      '#markup' => $out
+    );
+    
+    $form += drupal_retrieve_form('credit_card_form', $form_state); 
+    $form['#validate'][] = 'credit_card_form_validate';
+    array_unshift($form['#submit'], 'credit_card_form_submit');
+    if($order['recurring'] == 0) {
+      $method = 'sale';
+    }else{
+      $method = 'recurring';
+    }
+  }
+  $form['method'] = array(
+    '#type' => 'hidden',
+    '#value' => $method
+  );
+  
+  $form['order'] = array(
+    '#type' => 'hidden',
+    '#value' => serialize($order)
+  );
+ 
+  $form['#validate'][] = 'create_account_form_validate';
+  $form['#submit'][] = 'create_account_form_submit';
+  
+  //Set default values with social data and set readonly
+  if(isset($form['social_login']['#value'])) {
+    $social = unserialize($form['social_login']['#value']);
+    if(!empty($social['firstName']) || !empty($social['lastName'])) {
+      $form['profile_about_us']['field_user_name']['und'][0]['value']['#default_value'] 
+              = $social['firstName'] . ' ' . $social['lastName'];
+    }
+
+    $form['account']['mail']['#value'] = $social['email'];
+    $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['mail_confirm']['#value'] = $social['email'];
+    $form['account']['mail_confirm']['#type'] = 'hidden';    
+    
+    $key1 = array_search('user_register_submit', $form['#submit']);
+    $key2 = array_search('create_account_form_submit', $form['#submit']);
+    $form['#submit'][$key1] = 'create_account_form_submit';
+    unset($form['#submit'][$key2]);
+    
+  }
+ // This valiadte is only use to assign default value
+ // Profile URL cck field at the time of user save.
+ $form['#validate'][] = 'profile_url_assign_validate'; 
+ return $form;
+}
+
+/*
+ * Impelemnet hook_FORM_ID_form_alter(). this alter is use to remove hybrid 
+ * widget from create_account_form() after using the social registration process. 
+ */
+function recurring_subscription_form_create_account_form_alter(&$form, &$form_state) {
+  if(isset($form['social_login']) && isset($form['hybridauth'])) {
+    unset($form['hybridauth']);
+  }
+}
+
+/**
+ * Determines if the current user has access to the user registration page.
+ *
+ * @return bool
+ *   TRUE if the user is not already logged in and can register for an account.
+ */
+function create_account_access() {
+  return TRUE;
+}
+
+function profile_url_assign_validate($form, &$form_state) {
+  $name = preg_replace('/@.*$/', '', $form_state['values']['mail']);
+  $new_name = preg_replace("/[^A-Za-z0-9]/", '', $name);
+  $uid = db_query('SELECT max(uid) FROM {users} WHERE 1=1')->fetchField();
+  $uid = $uid + 1 ;
+  $form_state['values']['field_profile_url']['und'][0]['value'] = $new_name.$uid;
+}
+/**
+ * Implements hook_form_validate().
+ */
+function create_account_form_validate($form, &$form_state) {
+  $postal_code = $form_state['values']['profile_about_us']['field_my_address']['und'][0]['postal_code'];
+  if(!is_numeric($postal_code)) {
+    form_set_error('profile_about_us][field_my_address][und][0][postal_code', t('Invalid Postcode.'));
+  }elseif(strlen($postal_code) > 4) {
+    form_set_error('profile_about_us][field_my_address][und][0][postal_code', t('Postcode should not more than 4 digit.')); 
+  }
+  if ($form_state['values']['mail'] != $form_state['values']['mail_confirm']) {
+    form_set_error('mail_confirm', 'The email addresses must match.');
+  }
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function create_account_form_submit($form, &$form_state) {
+  if($form_state['values']['method'] == 'free') {
+	$order = array();
+	if(isset($form_state['values']['order'])){
+		$order = unserialize($form_state['values']['order']);  
+	}
+	if(!empty($order['assign']) && isset($form_state['values']['roles'][$order['assign']])) {
+      $form_state['values']['roles'][$order['assign']] = TRUE;
+    }
+	$form_state['values']['data'] = array('membership' => array('nvp_response' => array()));		
+    $form_state['values']['data']['membership']['order'] = $order;
+	$message = 'Your free membership is successfully created.';
+	if(!empty($form_state['values']['uid'])) {
+		$account = user_load($form_state['values']['uid']);
+        if(!empty($order['assign'])) {
+          $account->roles[$order['assign']] = $order['assign'];
+        }
+        $account->data['membership']['nvp_response'] = array();
+        $account->data['membership']['order'] = $order;
+        user_save($account);
+	}
+    drupal_set_message($message);
+  }else {
+    if(isset($_SESSION['paid_user'])) {
+      unset($_SESSION['paid_user']);
+    }
+    $_SESSION['paid_user'] = 1;
+  }
+  
+  if(!empty($form_state['values']['social_login'])) {
+    module_load_include('inc', 'hybridauth', 'hybridauth.pages');
+    $data = unserialize($form_state['values']['social_login']);
+    $data['bypass'] = 1;
+    $data['order'] = $form_state['values']['data']['membership'];
+    $data['roles'] = $form_state['values']['roles'];
+    $uid = _hybridauth_window_process_auth($data);
+    if($uid) {
+      $account = user_load($uid);
+      $form_state['user'] = $account;
+      $form_state['values']['uid'] = $account->uid;
+      if($account->picture->fid) {
+        $picture = (array) $account->picture;
+        $form_state['values']['profile_about_us']['field_user_avatar']['und'][0] = $picture;
+      }
+    }
+  }
+  unset($_SESSION['order']);
+  unset($_SESSION['Drupal_do_social']);
+  unset($form_state['redirect']);
+  if(isset($_SESSION['sign_up_email'])) {
+    unset($_SESSION['sign_up_email']);
+  }
+  $_SESSION['sign_up_email'] = $form_state['values']['mail'];
+  $form_state['redirect'] = url('thank-you');
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function credit_card_form_submit($form, &$form_state) {
+  $order = array();
+  if(isset($form_state['values']['order'])){
+    $order = unserialize($form_state['values']['order']);  
+  }
+  $mail = $form_state['values']['mail']; 
+  $method = $form_state['values']['method'];
+  if($method == 'sale' || $method == 'addon') {
+    $nvp_request = _single($order, $form_state['values'], $form_state['values']);
+    
+  }elseif($method == 'recurring') {
+    $nvp_request = _recurring($order, $form_state['values'], $form_state['values']);
+    
+  } 
+
+  //watchdog('recurring', 'NVP Request. !debug', array('!debug' => '<pre>' . check_plain(print_r($nvp_request, TRUE)) . '</pre>'));
+  
+  $nvp_response = credit_card_api_request($nvp_request, 'https://payflowpro.paypal.com'); 
+  
+  //watchdog('recurring', 'NVP Response. !debug', array('!debug' => '<pre>' . check_plain(print_r($nvp_response, TRUE)) . '</pre>'));
+  
+  if (isset($nvp_response['RESULT']) && $nvp_response['RESULT'] != 0 && $nvp_response['CVV2MATCH'] != 'Y') {
+    if (!empty($nvp_response['RESPMSG'])) {
+      $error = check_plain($nvp_response['RESPMSG']);
+    } else {
+      $error = t('Unknown transaction code');
+    }
+    drupal_set_message($error, 'error');
+	
+	if(!empty($form_state['values']['error_redirect'])) {
+		drupal_goto($form_state['values']['error_redirect']);
+	}else {
+		drupal_goto('create-account');
+	}
+  }
+  else { 
+    if(!empty($order['assign']) && isset($form_state['values']['roles'][$order['assign']])) {
+      $form_state['values']['roles'][$order['assign']] = TRUE;
+    }
+    if(!empty($order['package'])) {
+      foreach($order['package'] as $key => $val) {
+        if(isset($form_state['values']['roles'][$val['assign']])) {
+          $form_state['values']['roles'][$val['assign']] = TRUE;
+        }	
+      }
+    }
+    if($method == 'recurring') {
+      $message = 'Your recurring profile successfully created. Your recurring profile id is ' . $nvp_response['PROFILEID'];
+      drupal_set_message($message);
+      $form_state['values']['data'] = array('membership' => array('nvp_response' => $nvp_response));
+      if(!empty($form_state['values']['data']['membership']['order']['package'])) {
+        $order['package'] += $form_state['values']['data']['membership']['order']['package'];
+      }
+      $form_state['values']['data']['membership']['order'] = $order;
+      /*
+       * @atype is action type. Section is used to manage members from
+       * upgrade form with paid plan along with addon package.
+       */
+      if(isset($form_state['values']['atype']) && $form_state['values']['atype'] == 'upgrade') {
+        $account = user_load($form_state['values']['uid']);
+        if(!empty($order['assign'])) {
+          $account->roles[$order['assign']] = $order['assign'];
+        }
+        if(!empty($order['package'])) {
+          foreach($order['package'] as $key => $val) {
+            $account->roles[$val['assign']] = $val['assign'];
+          }
+        }
+        $account->data['membership']['nvp_response'] = $nvp_response;
+        if(!empty($account->data['membership']['order']['package'])) {
+          $order['package'] += $account->data['membership']['order']['package'];
+        }
+        $account->data['membership']['order'] = $order;
+        user_save($account);
+      }
+    }
+    if($method == 'sale') {		
+      $form_state['values']['data'] = array('membership' => array('nvp_response' => $nvp_response));		
+      $form_state['values']['data']['membership']['order'] = $order;
+      $message = 'Payment successfully done. Your transaction id is ' . $nvp_response['PNREF'];
+      drupal_set_message($message);
+    }
+	/*
+	 * @atype is action type. Section is used to manage members from
+	 * upgrade form for addon package.
+	 */
+    if($method == 'addon') {
+      if(isset($form_state['values']['uid']) && isset($form_state['values']['atype'])) {
+        $account = user_load($form_state['values']['uid']);
+        if(!empty($order['package'])) {
+          foreach($order['package'] as $key => $val) {
+            $account->roles[$val['assign']] = $val['assign'];
+            $order['package'][$key]['nvp_response'] = $nvp_response;
+          }
+        }		
+        $account->data['membership']['order']['package'] += $order['package'];        
+        user_save($account);
+      }      
+      $message = 'Payment successfully done. Your transaction id is ' . $nvp_response['PNREF'];
+      drupal_set_message($message);
+    }
+  }
+}
+
+/*
+ * Implements hook_user_insert().
+ */
+function recurring_subscription_user_insert(&$edit, $account, $category) {
+  //$_SESSION['order']['uid'] = $account->uid;
+}
+
+/**
+ * Implements hook_access().
+ */
+function account_details_access() {
+  if(isset($_SESSION['order']['uid']) && $_SESSION['order']['uid'] > 0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_form().
+ */
+function user_singup_form($form, $form_state) { 
+  
+  if(user_is_logged_in()) {
+    global $user;
+    drupal_goto('user/'. $user->uid .'/member/upgrade');
+  }
+  
+   if(isset($_SESSION['order'])) {
+      unset($_SESSION['order']);
+   }
+   if(isset($_SESSION['Drupal_do_social'])) {
+     unset($_SESSION['Drupal_do_social']);
+   }
+   
+  $plans   = _subscription_plan();
+  $package = _package_plan();
+  
+  $form['mark_plan'] = array('#markup' => _subscription_plan_price());
+  $form['mark_mobile_plan'] = array('#markup' => _subscription_mobile_plan_price());
+  if(arg(0) == 'sign-up') {  
+    $n_plan = array();
+    foreach($plans as $k => $v) {
+      $n_plan[$k] = '';
+    }
+    $form['plan'] = array(
+    '#type' => 'radios',
+    '#options' => $n_plan,
+    '#required' => TRUE,
+   );
+  } else {
+    $form['plan'] = array(
+    '#title' => t('Select Plan'),
+    '#type' => 'radios',
+    '#options' => $plan,
+    '#required' => TRUE,
+   );
+  }
+   if(!empty($package) && arg(0) == 'sign-up') {
+    $form['package'] = array(
+      '#type' => 'checkboxes',
+      '#options' => $package,
+      '#required' => FALSE
+    );
+   }elseif(!empty($package) && arg(0) != 'sign-up') {
+	   $form['package'] = array(
+      '#title' => t('Additional Package'),
+      '#type' => 'checkboxes',
+      '#options' => $package,
+      '#required' => FALSE	  
+    );
+   }
+   
+   $form['submit'] = array(
+     '#type' => 'submit',
+     '#value' => 'Continue',
+     '#attributes' => array('class' => array('signup-bottom-bar')),
+   );
+
+  return $form;
+}
+
+/*
+ * Implements hook_form_validate().
+ */
+function user_singup_form_validate($form, &$form_state) {
+  /* Form validate code here. */
+}
+
+/*
+ * Implements hook_form_submit().
+ */
+function user_singup_form_submit($form, &$form_state) {
+  $info = array(
+    'sell_price' => 0, // Plan price + additional package price
+    'duration' => '',  // Recurring Duration
+    'recurring' => 0,  // Plan price
+    'uid' => '',       // uid for account detail page
+    'assign' => '',    // Role assign when plan purchased 
+    'revoke' => '',    // Role assign when payment not credited
+    'plan_id' => '',   // Plan tid
+    'package' => array(), // Additional package details
+  );
+  
+  $tid = $form_state['values']['plan'];
+  $plan = _subscription_plan_details($tid);
+  $info['sell_price'] = $plan['sell_price'];
+  $info['duration']   = $plan['duration'];
+  $info['recurring']  = $plan['sell_price'];
+  $info['assign']     = $plan['assign'];
+  $info['revoke']     =  $plan['revoke'];
+  $info['plan_id']    = $tid;
+  $packages = array();
+  if(!empty($form_state['values']['package'])) {
+    foreach($form_state['values']['package'] as $key => $tid) {
+      if($tid > 0) {		
+        $plan = _subscription_plan_details($tid);
+        $info['sell_price'] += $plan['sell_price'];
+		$packages[] = array( 'tid' => $tid, 'sell_price' => $plan['sell_price'], 'assign' => $plan['assign']);
+      }
+    }
+  }
+  $info['package'] = $packages;
+  if(isset($_SESSION['order'])) {
+    unset($_SESSION['order']);
+  }
+  $_SESSION['order'] = $info;
+  $form_state['redirect'] = 'create-account';
+}
+
+/*
+ * Implements subscription plan to featch all available plans.
+ * Theme will be implement later phases.
+ */
+function _subscription_plan() {
+  $name = 'subscription_plan';
+  $vocabulary = taxonomy_vocabulary_machine_name_load($name);
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  $options = array();
+  if(!empty($terms)) {
+    foreach($terms as $term) {	
+      $output = $term->name  . '( $ ' . $term->field_sell_price['und'][0]['value'] . ' )';
+      $options[$term->tid] = $output ;
+    }
+  }
+  return $options;
+}
+
+function _subscription_plan_price() {
+  $name = 'subscription_plan';
+  $vocabulary = taxonomy_vocabulary_machine_name_load($name);
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  $options = array();
+  if(!empty($terms)) {
+    foreach($terms as $term) {
+      if($term->field_sell_price['und'][0]['value'] == 0) {
+        $options[$term->tid] = '<span class="hidden-xs">' . $term->name . "<br></span>Free!";
+      }else {
+        $options[$term->tid] = '<span class="hidden-xs">' . $term->name. '</br ></span>';
+        $options[$term->tid] .= '<del>$'.floatval($term->field_display_price['und'][0]['value']).'</del>' ;
+        $options[$term->tid] .= ' $'. floatval($term->field_sell_price['und'][0]['value']) .'/Year' ;
+      }
+    }
+  }
+  return serialize($options);
+}
+
+function _subscription_mobile_plan_price() {
+  $name = 'subscription_plan';
+  $vocabulary = taxonomy_vocabulary_machine_name_load($name);
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  $options = array();
+  if(!empty($terms)) {
+    foreach($terms as $term) {
+      if($term->field_sell_price['und'][0]['value'] == 0) {
+        $options[$term->tid] = '$0';
+      }else {        
+        $options[$term->tid] = ' $'. floatval($term->field_sell_price['und'][0]['value']).'/Y' ;
+      }
+    }
+  }
+  return serialize($options);
+}
+
+
+/*
+ * Implements additional package plan available to user on
+ * subscription plan page.Theme will be implements later.
+ */
+function _package_plan() {
+  $name = 'package';
+  $vocabulary = taxonomy_vocabulary_machine_name_load($name);
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  $options = array();
+  if(!empty($terms)) {
+    foreach($terms as $term) {	
+      $output  = '<div class="pkg-name"><p class="pkg-title">' . $term->name .'</p>';
+      $output .= '<p class="pkg-desc">' . $term->description . '</p>';
+      $output .=  '</div>';
+      $output .= '<div class="pkg-price"> $'. $term->field_sell_price['und'][0]['value'] . '</div>';
+      $options[$term->tid] = $output ;
+    }
+  }
+  return $options;
+}
+
+/*
+ * Implement function to get subscription plan amount along with
+ * additional (optional) package amount and recurring plan duration.
+ */
+function _subscription_plan_details($tid) {
+  $terms = entity_load('taxonomy_term', FALSE, array('tid' => $tid));
+  $output = array();
+  if(!empty($terms)) {
+    foreach($terms as $term) {
+      $output['sell_price'] = $term->field_sell_price['und'][0]['value'];
+      $output['assign'] = $term->field_assign_role['und'][0]['rid'];
+      if(!empty($term->field_duration['und'][0]['value'])) {
+        $output['duration'] = $term->field_duration['und'][0]['value'];
+		$output['revoke'] = $term->field_revoke_role['und'][0]['rid'];
+      }
+    }
+  }
+  return $output;
+}
+
+/*
+ * Implement hook_form().Its a credit card form.
+ */
+function credit_card_form($form, &$form_state) {	
+  $form['cc_number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Card number'),
+    '#default_value' => NULL,
+    '#attributes' => array('autocomplete' => 'off'),
+    '#size' => 30,
+    '#maxlength' => 19,
+  );
+  $form['cc_exp_month'] = credit_card_select_month(t('Expiration date'));
+  $form['cc_exp_year']  = credit_card_select_year(t('Expiration year'));
+  $form['cc_cvv'] = array(
+    '#type' => 'password',
+    '#title' => t('CVV'),
+    '#default_value' => NULL,
+    '#size' => 10,
+    '#attributes' => array('autocomplete' => 'off'),
+  );
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+ return $form;  
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function credit_card_form_validate($form, &$form_state) {
+  // Fetch the CC details from the $_POST directly.
+  $cc_data = array();
+  $cc_data['cc_number'] = $form_state['values']['cc_number'];
+  $cc_data['cc_cvv'] = $form_state['values']['cc_cvv'];
+  $cc_data['cc_exp_month'] = $form_state['values']['cc_exp_month'];
+  $cc_data['cc_exp_year'] = $form_state['values']['cc_exp_year'];
+  $cc_data['cc_number'] = str_replace(' ', '', $cc_data['cc_number']);
+
+  // Validate the CC number if that's turned on/check for non-digits.
+  if (!credit_card_valid_card_number($cc_data['cc_number'])  || !ctype_digit($cc_data['cc_number'])) {
+    form_set_error('cc_number', t('You have entered an invalid credit card number.'));
+  }
+
+  // Validate the card expiration date.
+  if (!credit_card_valid_card_expiration($cc_data['cc_exp_month'], $cc_data['cc_exp_year'])) {
+    form_set_error('cc_exp_month', t('The credit card you entered has expired.'));
+    form_set_error('cc_exp_year');
+  }
+
+  // Validate the CVV number if enabled.
+  if (!credit_card_valid_cvv($cc_data['cc_cvv'])) {
+    form_set_error('cc_cvv', t('You have entered an invalid CVV number.'));
+  } 
+}
+
+/*
+ * Implements seal object
+ * return @$nvp_request
+ */
+function _single($order, $values, $value) {
+  $nvp_request = credit_card_request('S');
+  $nvp_request['AMT'] = round($order['sell_price'],2);
+  $nvp_request['ACCT'] = $values['cc_number'];
+  $nvp_request['CVV2'] = $values['cc_cvv'];
+  $nvp_request['EXPDATE'] = date('my', mktime(0, 0, 0, $values['cc_exp_month'], 1, $values['cc_exp_year']));
+  $nvp_request['EMAIL'] = $value['mail'];
+  $uid = NULL;
+  if(!empty($values['uid'])) {
+	$uid = $values['uid'];
+  }
+  $sipping = _sipping($values, $uid);
+  $nvp_request += $sipping;
+  
+  return $nvp_request;
+}
+
+/*
+ * Implements recurring object
+ * return @$nvp_request
+ */
+function _recurring($order, $values, $value) {
+  $days = _days_duration_map($order['duration']);
+  $start_date = date('mdY', strtotime('+' .$days . ' days'));
+  $nvp_request = credit_card_request(); 
+  if (!empty($order['sell_price']) && $order['sell_price'] > 0 ) {
+    $nvp_request['OPTIONALTRX'] = 'S';
+    $nvp_request['OPTIONALTRXAMT'] = round($order['sell_price'], 2);
+  }
+  $nvp_request['START'] = $start_date;
+  $nvp_request['PAYPERIOD'] = $order['duration'];
+  $nvp_request['AMT'] = round($order['recurring'],2);
+  $nvp_request['ACCT'] = $values['cc_number'];
+  $nvp_request['CVV2'] = $values['cc_cvv'];
+  $nvp_request['EXPDATE'] = date('my', mktime(0, 0, 0, $values['cc_exp_month'], 1, $values['cc_exp_year']));
+  $nvp_request['EMAIL'] = $value['mail'];
+  
+  $uid = NULL;
+  if(!empty($values['uid'])) {
+	$uid = $values['uid'];
+  }
+  $sipping = _sipping($values, $uid);
+  $nvp_request += $sipping;
+  
+  return $nvp_request;
+}
+
+/*
+ * Implements sipping object
+ * return @$nvp_request
+ */
+function _sipping($value, $uid = NULL) {
+	$nvp_request = array();
+	if(!$uid) {
+		$address = $value['profile_about_us']['field_my_address']['und'][0];
+		$user_name = $value['profile_about_us']['field_user_name']['und'][0]['value'];
+	}else {
+		$account = user_load($uid);
+		$profile = profile2_load_by_user($account, 'about_us');
+		$address = $profile->field_my_address['und'][0];
+		$user_name = $profile->field_user_name['und'][0]['value'];		
+	}
+	
+	$name = explode(' ', $user_name);
+	if(count($name) > 0) {
+		$nvp_request['FIRSTNAME'] = isset($name[0]) ? $name[0] : '';
+		$nvp_request['LASTNAME'] = isset($name[1]) ? $name[1] : '';
+	}
+	$nvp_request['STREET'] = $address['thoroughfare'] ;
+	$nvp_request['CITY']   = $address['locality'];
+	$nvp_request['STATE']  = $address['administrative_area'];
+	$nvp_request['ZIP'] = $address['postal_code'];
+	$nvp_request['COUNTRY'] = $address['country'];
+	
+	return $nvp_request;
+}
+
+function _days_duration_map($duration) {
+  $options = array(
+    'DAYS' => 1,
+    'WEEK' => 7,
+    'BIWK' => 14,
+    'SMMO' => 15,
+    'FRWK' => 28,
+    'MONT' => 30,
+    'QTER' => 90,
+    'SMYR' => 180,
+    'YEAR' => 365
+  );
+ return $options[$duration];
+}
+
+/**
+ * Creates a month select box for a form.
+ */
+function credit_card_select_month($title = NULL, $default = NULL, $allow_empty = FALSE) {
+  $options = $allow_empty ? array('' => '') : array();
+
+  $select = array(
+    '#type' => 'select',
+    '#title' => (is_null($title) ? t('Month') : $title),
+    '#options' =>
+    $options +
+    array(
+      1 => t('01 - January'),
+      2 => t('02 - February'),
+      3 => t('03 - March'),
+      4 => t('04 - April'),
+      5 => t('05 - May'),
+      6 => t('06 - June'),
+      7 => t('07 - July'),
+      8 => t('08 - August'),
+      9 => t('09 - September'),
+      10 => t('10 - October'),
+      11 => t('11 - November'),
+      12 => t('12 - December'),
+    ),
+    '#default_value' => (is_null($default) ? 0 : $default),
+  );
+
+  return $select;
+}
+/**
+ * Creates a year select box for a form.
+ */
+function credit_card_select_year($title = NULL, $default = NULL, $min = NULL, $max = NULL, $allow_empty = FALSE) {
+  $min = is_null($min) ? intval(date('Y')) : $min;
+  $max = is_null($max) ? intval(date('Y')) + 20 : $max;
+  $options = $allow_empty ? array('' => '') : array();
+
+  $select = array(
+    '#type' => 'select',
+    '#title' => (is_null($title) ? t('Year') : $title),
+    '#options' => $options + drupal_map_assoc(range($min, $max)),
+    '#default_value' => (is_null($default) ? 0 : $default),
+  );
+
+  return $select;
+}
+
+/**
+ * Validates a credit card number during subscription.
+ *
+ * Luhn algorithm.  See: http://www.merriampark.com/anatomycc.htm
+ */
+function credit_card_valid_card_number($number) {
+  $total = 0;
+  for ($i = 0; $i < strlen($number); $i++) {
+    $digit = substr($number, $i, 1);
+    if ((strlen($number) - $i - 1) % 2) {
+      $digit *= 2;
+      if ($digit > 9) {
+        $digit -= 9;
+      }
+    }
+    $total += $digit;
+  }
+
+  if ($total % 10 != 0) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Validates an expiration date on a card.
+ *
+ * @param string $month
+ *   The 1 or 2-digit numeric representation of the month, i.e. 1, 6, 12.
+ * @param string $year
+ *   The 4-digit numeric representation of the year, i.e. 2008.
+ *
+ * @return TRUE
+ *   TRUE for non-expired cards, FALSE for expired.
+ */
+function credit_card_valid_card_expiration($month, $year) {
+  if ($year < date('Y')) {
+    return FALSE;
+  }
+  elseif ($year == date('Y')) {
+    if ($month < date('n')) {
+      return FALSE;
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * Validates a CVV number during checkout.
+ */
+function credit_card_valid_cvv($cvv) {
+  $digits = array(3, 4);
+  // Fail validation if it's non-numeric or an incorrect length.
+  if (!is_numeric($cvv) || (count($digits) > 0 && !in_array(strlen($cvv), $digits))) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Sends a request to PayPal and returns a response array.
+ */
+function credit_card_api_request($request, $server) {
+  // We use $request += to add API credentials so that if a key already exists,
+  // it will not be overridden.
+  $request += array(
+    'USER' => 'maryjuria',
+    'PWD' => 'Merchant001',
+    'PARTNER' => 'VSA',
+    'VENDOR' => 'maryjuria',
+    'CUSTIP' => ip_address(),
+    'VERBOSITY' => 'MEDIUM',
+  );
+
+  $data = drupal_http_build_query($request);
+
+  if (isset($request['ACCT']) && isset($request['AMT'])) {
+    $request_id = drupal_get_token($request['ACCT'] . $request['AMT'] . date('YmdGis') . "1");
+  }
+  else {
+    $request_id = drupal_get_token(REQUEST_TIME . date('YmdGis') . "1");
+  }
+
+  $headers = array();
+  $headers[] = "Content-Type: text/namevalue";
+  $headers[] = "X-VPS-Timeout: 30";
+  $headers[] = "X-VPS-Request-ID: " . $request_id;
+  $post = array(
+    'method' => 'POST',
+    'data' => $data,
+    'timeout' => 30,
+    'headers' => $headers,
+  );
+
+  $response = array();
+  $result = drupal_http_request($server, $post);
+  if (isset($result->code) && $result->code == 200) {
+    $response = credit_card_nvp_to_array($result->data);
+  }
+  else {
+    watchdog('credit_card', '!error', array('!error' => '<pre>' . print_r($result, TRUE) . '</pre>'), WATCHDOG_ERROR);
+    $response['RESULT'] = FALSE;
+  }
+  return $response;
+}
+
+/**
+ * Turns PayFlow's NVP response to an API call into an associative array.
+ */
+function credit_card_nvp_to_array($result) {
+  if (empty($result)) {
+    return '';
+  }
+
+  $response = array();
+  $value = explode('&', $result);
+  foreach ($value as $token) {
+    $key = explode('=', $token);
+    $response[$key[0]] = $key[1];
+  }
+  return $response;
+}
+
+/**
+ * Helper function to prepare PayFlow Pro request data.
+ */
+function credit_card_request($type = 'R', $action = 'A', $method = 'C') {
+ if($type == 'R') {
+  $nvp_request = array(
+    'TRXTYPE' => $type,
+    'TENDER' => $method ,
+    'CURRENCY' => 'AUD', //variable_get('credit_card_currency', 'USD'),
+    'ACTION' => $action,
+    'TERM' => 0,
+    'PROFILENAME' => 'RegularSubscription',
+    'COMMENT1' => 'CreateRecurringPaymentsProfile',
+  );
+ }
+ if($type == 'S') {
+  $nvp_request = array(
+    'TRXTYPE' => $type,
+    'TENDER' => $method ,
+    'CURRENCY' => 'AUD', //variable_get('credit_card_currency', 'USD'),
+  );
+ }
+ return $nvp_request;
+}
+
+/**
+ * Helper function; Get a recurring payments profile from PayPal.
+ *
+ * @param string $profile_id
+ *   The recurring PROFILE ID.
+ *
+ * @return array
+ *   FALSE on failure, otherwise, the NVP response from PayPal.
+ */
+function recurring_subscription_payflow_profile($profile_id) {
+  // Build an NVP request.
+  $nvp_request = array(
+    'TRXTYPE' => 'R',
+    'ACTION' => 'I',
+    'ORIGPROFILEID' => $profile_id,
+  );
+
+  // Post the request, and parse the response.
+  $nvp_response = credit_card_api_request($nvp_request, variable_get('recurring_subscription_server', 'https://payflowpro.paypal.com'));
+  if (isset($nvp_response['STATUS']) && strtoupper($nvp_response['STATUS']) != 'ACTIVE') {
+    return FALSE;
+  }
+  return $nvp_response;
+}
+
+/**
+ * PayPal website payments pro cancel.
+ *
+ * Note: the cancel handler gets just one parameter $profile_id. And it is
+ * passed by value (not by ref).
+ */
+function recurring_subscription_profile_cancel($profile_id) {
+  $nvp_request = array(
+    'TRXTYPE' => 'R',
+    'ACTION' => 'C',
+    'ORIGPROFILEID' => $profile_id,
+  );
+
+  // Post the request, and parse the response.
+  $nvp_response = credit_card_api_request($nvp_request, variable_get('recurring_subscription_server', 'https://payflowpro.paypal.com'));
+
+  if ($nvp_response['RESULT'] == 0) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function recurring_subscription_token_info() {
+  $info['tokens']['user']['fullname'] = array(
+    'name' => t('User full name'),
+    'description' => t('Provides user full name. May be used only during registration.'),
+  );
+  return $info;
+}
+/**
+ * Implements hook_tokens().
+ */
+function recurring_subscription_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  if (isset($data['user']) && isset($data['user']->profile_about_us)) {
+    $name = $data['user']->profile_about_us['field_user_name']['und'][0]['value'];
+    $replacements['[user:fullname]'] = $name;
+  }
+  elseif (isset($data['user']) && !isset($data['user']->profile_about_us)) {
+    $replacements['[user:fullname]'] = @$data['user']->name;
+  }
+  return $replacements;
+
+}

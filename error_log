@@ -1,0 +1,56 @@
+[11-Aug-2015 05:37:44 Australia/Lindeman] PHP Fatal error:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 79 bytes) in /home/staging/public_html/includes/cache.inc on line 438
+[11-Aug-2015 05:38:15 Australia/Lindeman] PHP Fatal error:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 13555 bytes) in /home/staging/public_html/includes/cache.inc on line 454
+[11-Aug-2015 05:38:25 Australia/Lindeman] PHP Fatal error:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 4104 bytes) in /home/staging/public_html/includes/bootstrap.inc on line 1571
+[11-Aug-2015 05:38:37 Australia/Lindeman] PHP Fatal error:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 65552 bytes) in /home/staging/public_html/includes/bootstrap.inc on line 1571
+[11-Aug-2015 05:39:29 Australia/Lindeman] PHP Fatal error:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 264595 bytes) in /home/staging/public_html/includes/cache.inc on line 454
+[15-Aug-2015 21:42:17 Australia/Lindeman] PHP Fatal error:  Class 'Hybrid_Exception' not found in /home/staging/public_html/sites/all/libraries/hybridauth/Hybrid/Endpoint.php on line 213
+[17-Aug-2015 15:08:58 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file in /home/staging/public_html/sites/all/themes/springup/profile2--awards_certificates.tpl.php on line 62
+[17-Aug-2015 15:09:54 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file in /home/staging/public_html/sites/all/themes/springup/profile2--awards_certificates.tpl.php on line 62
+[18-Aug-2015 04:35:01 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:35:34 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:35:50 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:35:54 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:37:37 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:38:28 Australia/Lindeman] PHP Fatal error:  Call to a member function ensure_my_table() on a non-object in /home/staging/public_html/sites/all/modules/views/handlers/views_handler_filter_combine.inc on line 60
+[18-Aug-2015 04:55:17 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:55:28 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:55:31 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:55:32 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:55:32 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:55:32 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[18-Aug-2015 04:56:53 Australia/Lindeman] PHP Fatal error:  Call to a member function get_exposed_input() on a non-object in /home/staging/public_html/sites/all/modules/views/views.module on line 1983
+[19-Aug-2015 19:31:46 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ';' in /home/staging/public_html/sites/all/themes/springup/profile2--about_us.tpl.php on line 82
+[19-Aug-2015 19:58:44 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file in /home/staging/public_html/modules/php/php.module(80) : eval()'d code on line 32
+[20-Aug-2015 17:45:24 Australia/Lindeman] PHP Parse error:  syntax error, unexpected 'user_profile' (T_STRING) in /home/staging/public_html/sites/all/themes/springup/template.php on line 212
+[21-Aug-2015 02:37:55 Australia/Lindeman] PHP Warning:  Unterminated comment starting line 279 in /home/staging/public_html/sites/all/modules/profile2/profile2.module on line 279
+[21-Aug-2015 03:20:14 Australia/Lindeman] PHP Fatal error:  Function name must be a string in /home/staging/public_html/sites/all/themes/springup/user-profile.tpl.php on line 41
+[24-Aug-2015 15:35:52 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '}' in /home/staging/public_html/sites/all/modules/profile_like/profile_like.module on line 72
+[25-Aug-2015 01:49:07 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '$user' (T_VARIABLE) in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 139
+[25-Aug-2015 02:00:53 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ''))); ?>">My Account</a></li>' (T_CONSTANT_ENCAPSED_STRING), expecting ')' in /home/staging/public_html/modules/php/php.module(80) : eval()'d code on line 32
+[25-Aug-2015 03:52:49 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '{' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 153
+[25-Aug-2015 16:24:31 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '$content' (T_VARIABLE) in /home/staging/public_html/sites/all/themes/springup/profile2--follow_me.tpl.php on line 80
+[25-Aug-2015 19:32:14 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '<' in /home/staging/public_html/sites/all/themes/springup/user--profile--comments.tpl.php on line 90
+[25-Aug-2015 19:32:23 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '<' in /home/staging/public_html/sites/all/themes/springup/user--profile--comments.tpl.php on line 90
+[25-Aug-2015 19:33:19 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '<' in /home/staging/public_html/sites/all/themes/springup/user--profile--comments.tpl.php on line 90
+[30-Aug-2015 16:41:29 Australia/Lindeman] PHP Parse error:  syntax error, unexpected 't' (T_STRING) in /home/staging/public_html/sites/all/themes/springup/user-profile.tpl.php on line 65
+[30-Aug-2015 16:45:07 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '=>' (T_DOUBLE_ARROW) in /home/staging/public_html/sites/all/themes/springup/user-profile.tpl.php on line 65
+[01-Sep-2015 04:12:28 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:12:32 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:12:36 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:12:37 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:12:40 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:12:50 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting variable (T_VARIABLE) or '$' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 121
+[01-Sep-2015 04:13:11 Australia/Lindeman] PHP Parse error:  syntax error, unexpected end of file, expecting ']' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 214
+[01-Sep-2015 16:54:17 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '{' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 404
+[01-Sep-2015 16:54:26 Australia/Lindeman] PHP Parse error:  syntax error, unexpected '{' in /home/staging/public_html/sites/all/modules/profile_manage/profile_manage.module on line 404
+[01-Sep-2015 16:54:36 Australia/Lindeman] PHP Fatal error:  Call to undefined function is_member() in /home/staging/public_html/sites/all/themes/springup/template.php on line 107
+[03-Sep-2015 19:16:22 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:00 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:21 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:24 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:24 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:24 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:24 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[03-Sep-2015 19:17:25 Australia/Lindeman] PHP Parse error:  syntax error, unexpected ')', expecting '(' in /home/staging/public_html/sites/all/modules/favorites/favorites.module on line 400
+[06-Sep-2015 22:01:22 Australia/Lindeman] PHP Fatal error:  Class 'Hybrid_Exception' not found in /home/springup/public_html/sites/all/libraries/hybridauth/Hybrid/Endpoint.php on line 213
+[06-Sep-2015 22:01:23 Australia/Lindeman] PHP Fatal error:  Class 'Hybrid_Exception' not found in /home/springup/public_html/sites/all/libraries/hybridauth/Hybrid/Endpoint.php on line 213

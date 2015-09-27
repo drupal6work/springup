@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @file
+ *  Install, update and uninstall functions for the Profile_like module.
+ */
+
+/**
+ * Implementats hook_schema().
+ */
+function profile_like_schema() {
+  $schema = array();
+  $schema['profile_like'] = array(
+    'description' => "Stores each user's profile_like.",
+    'fields' => array(
+      'plid' => array(
+        'description' => 'The unique ID of the profile like',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The user ID of the user who like the profile.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'like_uid' => array(
+        'description' => 'The user ID of the user who liked by the other user.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),            
+    ),
+    'primary key' => array('plid'),
+    'indexes' => array('uid' => array('uid')),
+  );
+  
+  $schema['profile_notify'] = array(
+    'description' => "Stores each user's profile_like.",
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique ID of the profile like',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The user ID of the user who like the profile.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'notify_uid' => array(
+        'description' => 'The user ID of the user who like the profile.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'msg' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',       
+      ),
+	  'type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',       
+      ),
+	  'status' => array(
+        'description' => 'The user ID of the user who like the profile.',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array('uid' => array('uid')),
+  );
+  return $schema;
+}

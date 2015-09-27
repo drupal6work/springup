@@ -1,0 +1,24 @@
+name = SpringUp
+description = A multi-column theme which can be configured to modify colors and switch between fixed and fluid width layouts.
+package = Core
+version = VERSION
+core = 7.x
+stylesheets[all][] = style.css
+;stylesheets[print][] = print.css
+;settings[garland_width] = fluid
+
+regions[header] = Header
+regions[search] = Search
+regions[banner] = Banner
+regions[block_one] = Home Block 1
+regions[block_two] = Home Block 2
+regions[block_three] = Home Block 3
+regions[sidebar_first] = Sidebar First
+regions[content-top] = Content Top
+regions[content-middle] = Content Middle
+regions[content] = Content
+regions[content-bottom] = Content Bottom
+regions[footer] = Footer
+regions[sidebar_second] = Sidebar Second
+regions[more_profile] = More Profile
+

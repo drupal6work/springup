@@ -1,0 +1,312 @@
+/** Custom CSS apply by Ratab **/
+.filter-wrapper{ display :none !important;}
+#testimonial-slider .owl-controls{ display :none !important;}
+.grippie { display :none !important;}
+
+/**videocrousel**/
+#owl-video{ padding: 0 160px 50px;}
+#owl-video .item .embedded-video{
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px){
+    #owl-video{padding-left:50px; padding-right:50px;} 
+}
+/**videocrousel end**/
+
+
+/**awardCrousel**/
+#award-slider .item{
+    margin: 3px;
+}
+
+#award-slider .item img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+#award-slider .post-image img{width: 150px !important; height: auto;}
+#award-slider .latest-description .quote{ font-size: 20px; color: #4a4a4a;}
+.element-invisible{display :none !important;}
+
+/* User login Form Start */
+/*
+ 
+#create-account-form,
+
+
+#contact-site-form,
+.node-type-page .content,
+.page-user-member #member-block,
+#favorites-list-page {
+    background-color: #fff;
+    margin: 20px;
+    padding: 20px;
+}
+//.page-user-member #member-block,
+*/
+.node-type-page .content,
+#member-view,
+#favorites-list-page,
+#user-pass-reset,
+#user-login-area,
+#page-wrapper,
+.page-profile-notification #notification-profile {
+    background-color: #fff;
+    margin: 0 20px 20px;
+    padding: 20px; 
+}
+
+.upButton{
+    cursor: pointer;
+}
+.downButton {
+    cursor: pointer;
+}
+
+div.messages {
+    margin: 6px 20px;
+}
+
+.title-page{
+    /*margin-left:15px;*/
+}
+
+#user-login {
+    border-right:1px solid #e7e7e7;
+}
+
+#user-login .form-text,
+#create-account-form .form-text,
+#create-account-form .form-select,
+#user-pass .form-text{
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #e3e4e7;
+    border-radius: 0px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+#user-login .form-item label,
+#user-pass .form-item label,
+#create-account-form .form-item label,
+#contact-site-form .form-item label{
+    display: inline-block;
+    max-width: 100%;
+    margin: 10px 0px 0;
+    font-weight: 700;
+}
+
+#user-login .form-wrapper input[type=submit],
+#user-pass .form-wrapper input[type=submit],
+#create-account-form .form-wrapper input[type=submit],
+#user-pass-reset .form-wrapper input[type=submit],
+#contact-site-form .form-wrapper input[type=submit],
+.form-submit{
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 0px !important;
+    margin: 5px 0;
+    color:#fff;
+    background:#61A1D7;
+}
+
+a.form-submit:hover{color:#fff; text-decoration:none;}
+.form-submit + .form-submit{margin-left:15px;}
+
+#create-account-form .login-block {
+    width: 100%;
+    display: block;
+}
+#create-account-form .social-block{
+    width: 100%;
+    display: block;
+}
+
+
+.form-menu {
+    background-color: #ddd;
+    margin: 0 5px;
+    padding: 4px 10px;
+    color: black;
+}
+.form-menu:first-child{margin-left:0px;}
+
+.form-menu.active {
+    background-color: #666;
+    color: white;
+}
+/*
+#follow-me .col-md-offset-1{
+ margin-left: 2.333%;
+}
+
+#follow-me .col-md-5 {
+    width: 47.667%;
+}
+*/
+
+div.password-strength {display:none;}
+div.password-confirm {display:none;}
+div.description {display:none;}
+
+.modal-body #privatemsg-new .form-textarea, 
+.modal-body #comment-form .form-textarea {
+    width: 98%;
+}
+
+
+#privatemsg-list .form-text{
+    width: 30%;  
+}
+#privatemsg-list table .form-item {
+    margin-bottom: 0px;
+}
+
+#privatemsg-list #edit-save {
+    margin-left: 10px;
+}
+
+#privatemsg-list .form-item-operation .form-select {
+    width:30%;
+    margin-top: 10px;
+}
+
+.street-block .form-text{
+    margin-bottom: 10px;
+}
+.login-signup-block{
+}
+
+table{width:100%; border:#ededed 1px solid; margin: 10px 0;}
+table thead tr, table tbody tr.selected{    background-color: #F2F2F2;}
+table th,
+table td{padding: 5px 10px;     border: #eee 1px solid;}
+table .marker{    color: red;
+    font-style: italic;
+    font-size: 12px;}
+.page-messages form#privatemsg-list div.container-inline *{margin:0px;}
+#privatemsg-list-form .container-inline{
+	    float: left;
+    width: 100%;
+    margin-bottom: 10px;
+}
+#privatemsg-list-form .container-inline input.form-submit{float:right;}
+
+@media (max-width: 518px){
+    .hybridauth-facebook-hybridauth-32, .hybridauth-google-hybridauth-32{ background-size: 21px;}
+
+    #user-login,
+    .page-create-account #create-account-form,
+    #user-pass {
+    		margin:0 15px;
+        border-right:none;
+    }
+
+    .login-signup-block{
+        margin-left: 10%;
+    }
+
+    #privatemsg-list .form-item-operation .form-select {
+        width:70%;
+        margin-top: 10px;
+    }
+
+    #privatemsg-list .form-text,
+    #user-login .form-text, 
+    #user-pass .form-text,
+    #contact-site-form .form-text,
+    #create-account-form .login-block .form-text  {
+        width: 100%;
+    }
+    .form-textarea{
+        width: 100%; 
+    }
+    #upgrade-member-form .form-text,
+    #create-account-form .form-text  {
+        width: 100%;
+    }
+    #upgrade-member-form .form-select,
+    #member-cancel-form .form-select,
+    #create-account-form .form-wrapper .form-select{
+        width: 100%;
+    }
+
+    #create-account-form .login-block {
+        width: 100%;
+    }
+
+    #create-account-form .login-block .form-select {
+        width: 100%;
+    }
+
+    #create-account-form .social-block{
+        width: 100%;
+    }
+    #create-account-form .social-block h3 {
+        font-size: 12px;
+    }
+    #create-account-form .street-block .form-text{
+        width: 100%;
+    }
+    .title-page{
+        font-size:24px;
+    }
+}
+@media (max-width: 768px){
+    .main-navigation .navbar-form {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+
+    .login-signup-block{
+        margin-left: 15%;
+    }
+		#follow-me .last-f2s {
+		padding-left:15px !important;
+		margin-top:15px;
+	}
+	
+#follow-me .sprinUp-title.folls-wa2 {
+	margin:20px 15px 26px 0;
+	padding-top:20px;
+}
+		
+}
+@media (max-width: 992px){
+    #user-login{
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-right:none;        
+    }
+}
+

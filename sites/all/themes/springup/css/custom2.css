@@ -1,0 +1,164 @@
+.message-list-item{
+  background-color: #fff;
+  margin: 10px 20px;
+  padding: 5px; 
+}
+
+.message-head {
+      margin: 0 20px;
+    padding: 10px;
+    background-color: #fff;
+    font-weight: bold;
+}
+.message-list-item .privatemsg-author-avatar{
+	float: left;
+  width: 100px;
+}
+.message-list-item .privatemsg-message-column{
+	width:auto;
+	float:none;
+	padding-left:100px;
+}
+.message-list-item .privatemsg-author-name,
+.message-list-item .privatemsg-message-date{font-size:100%;}
+.message-list-item .privatemsg-message-actions{float:right;}
+.message-list-item .privatemsg-message-actions li{list-style:none;}
+h2.privatemsg-reply{margin-top:0px;}
+
+.item-list ul{padding-left:20px;}
+
+.page-profile-notification #page-title,
+.page-favorites-list #page-title{
+	max-width: 400px;
+	margin: 10px auto 0 !important;
+}
+.page-user-edit #page-title, .page-profile-edit #page-title, .page-user-member-cancel #page-title, .page-user-member-upgrade #page-title, .page-user-member #page-title, .page-profile-edit-password #page-title {
+	max-width: 720px;
+	margin: 10px auto 0 !important;
+}
+.page-profile-notification #notification-profile,
+.page-favorites #favorites-list-page {
+	padding:0px; 
+	background-color:transparent;
+	max-width: 400px;
+  margin: 0 auto 20px;
+}
+
+#notification-profile .item-list ul,
+#favorites-list-page .item-list ul { padding:0px; margin:0;}
+#notification-profile .item-list ul li,
+#favorites-list-page .item-list ul li{list-style: none;
+    background-color: #fff;
+    padding: 8px;
+    color: #1770b0;
+    border-bottom: #eee 1px solid;
+	font-family: "Flaticon";
+	font-size:15px;
+	letter-spacing:-1px;
+}
+#notification-profile .item-list ul li:last-child,
+#favorites-list-page .item-list ul li:last-child {
+	border:none;
+}
+	
+#notification-profile .item-list ul li:hover,
+#favorites-list-page .item-list ul li:hover{
+   background-color:#f7f6f6;
+   color: #1770b0;
+  }
+    #notification-profile .item-list ul li:hover a,
+#favorites-list-page .item-list ul li:hover a{color:#1770b0; text-decoration:none;}
+#notification-profile .item-list ul li img,
+#favorites-list-page .item-list ul li img{display:inline-block; margin-right:10px;}
+
+.handle:before{content: "\f047"; font-family:'FontAwesome'; cursor:move;}
+a.tabledrag-handle:hover{text-decoration:none;}
+#socialfield-table .tabledrag-handle,
+#socialfield-table .social-links{display:inline-block; vertical-align: middle;}
+.field-multiple-drag{text-align:center;}
+
+.edit-link a{color:#000;}
+.edit-link a:before{
+	font-family:'FontAwesome';
+	content: "\f040";
+	margin-right:3px;
+	color:#000;
+}
+.edit-link a:hover{text-decoration:none;}
+.user-right-top .sprinUp-title{
+	  margin-left: 0px;
+    text-transform: uppercase;
+	margin-bottom:0;
+}
+.user-right-top p {
+	margin-bottom:0;
+}
+.user-right-bottom #profile-like, .user-right-bottom p {
+	display:inline-block;
+	padding-right:10px;
+} 
+
+.page-node-109 .page-show-web, .page-node-135 .page-show-web, .page-node-111 .page-show-web {
+	background-image:url(../images/frame0_slider.png),  url(../images/banner1_bg.jpg);
+	background-size:auto, cover;
+	background-position:center center, center top;
+	background-repeat:repeat, no-repeat;
+	background-color:transparent;
+	width:100%;
+	display:block;
+	float:left;
+	margin-top:-70px;
+	padding-top:70px;
+}
+.page-node-111 .page-show-web .node .content .update-profile-link u {
+	text-decoration:none;
+	text-shadow:none;
+}
+
+.page-node-111 .page-show-web{
+	background-image:url(../images/frame0_slider.png), url(../images/welcome-user-bg.jpg);
+	background-size:auto, cover;
+	background-position:center center, bottom center;
+	background-repeat:repeat, no-repeat;
+	background-color:transparent;
+}
+
+body.page-node-109 #page-title, body.page-node-135 #page-title, body.page-node-111 #page-title{
+	  background-color: transparent;
+    color: #fff;
+    text-align: center;
+}
+body.page-node-111 #page-title{display:none;}
+body.page-node-109 .node .content,
+body.page-node-111 .node .content, 
+body.page-node-135 .node .content {background-color:transparent; color:#fff; text-shadow: 1px 1px 1px #000; text-align:center;}
+body.page-node-111 .node .content{
+	  padding: 100px 0 100px;
+}
+body.page-node-111 h1.sprinUp-title{
+	color: #fff;
+  margin-bottom: 50px;
+}
+body.page-node-111 h2{
+	margin-top: 50px;
+}
+.update-profile-link a{color:#fff;}
+.update-profile-link a:hover{text-decoration:none;}
+
+.tabs-wrapper{margin:0 20px; padding:10px 0;}
+.page-user-edit .tabs-wrapper, .page-profile-edit .tabs-wrapper, .page-user-member-cancel .tabs-wrapper, .page-user-member-upgrade .tabs-wrapper, .page-user-member .tabs-wrapper, .page-profile-edit-password .tabs-wrapper {text-align:center;}
+
+#follow-me .form-group{
+	 margin-bottom:10px;
+	 padding-bottom:10px;
+	 border-bottom:dashed 1px #ddd;
+}
+#follow-me .form-group .control-label {
+	color:#337ab7;
+}
+#follow-me .form-group .fa {
+	margin-left:6px;
+}
+#follow-me .last-f2s {
+	padding-left:30px;
+}

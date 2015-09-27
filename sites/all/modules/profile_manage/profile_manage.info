@@ -1,0 +1,11 @@
+name = Manage user profile
+description = Profile management for free/paid subscription.
+package = Membership
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2014-09-06
+version = "7.x-1.0"
+core = "7.x"
+project = "profile_manage"
+datestamp = "1409992729"
+

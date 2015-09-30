@@ -24,7 +24,7 @@
   <div class="container">
     <div class="col-md-12">
       <div class="row">
-        <h1 class="sprinUp-title">See our sample <span class="text-blue text-uppercase">profiles</span></h1>
+        <h1 class="sprinUp-title">See our Featured <span class="text-blue text-uppercase">profiles</span></h1>
         <div class="owl-carousel" id="owl-demo">
         <?php foreach ($rows as $row_count => $row): ?>
          <?php

@@ -145,6 +145,8 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
         $form['field_profile_url']['#prefix'] = '<div style="display:none;">';
         $form['field_profile_url']['#suffix'] = '</div>';
 
+        $form['mimemail']['#prefix'] = '<div style="display:none;">';
+        $form['mimemail']['#suffix'] = '</div>';
         
         $element_info = element_info('password_confirm');
         $process = $element_info['#process'];
@@ -160,6 +162,8 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
        $form['account']['current_pass']['#suffix'] = '</div>';
        $form['contact']['#prefix'] = '<div style="display:none;">';
        $form['contact']['#suffix'] = '</div>';       
+       $form['mimemail']['#prefix'] = '<div style="display:none;">';
+       $form['mimemail']['#suffix'] = '</div>';
        $key1 = array_search('user_validate_current_pass', $form['#validate']);
        unset($form['#validate'][$key1]);
       }

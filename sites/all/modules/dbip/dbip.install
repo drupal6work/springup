@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ *  Install, update and uninstall functions for the db ip module.
+ */
+
+/**
+ * Implementats hook_schema().
+ */
+function dbip_schema() {
+  $schema = array();
+  $schema['dbip'] = array(
+    'description' => "Stores request IP.",
+    'fields' => array(
+      'id' => array(
+        'description' => 'The unique ID of the for db IP',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'country' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',       
+      ),
+      'address' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),            
+    ),
+    'primary key' => array('id'),
+    'indexes' => array('address' => array('address')),
+  );
+ return $schema;
+}

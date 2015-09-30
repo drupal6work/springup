@@ -1,0 +1,4 @@
+name = IP validation 
+description = Allows users to access site based on allowed IP.
+core = 7.x
+files[] = dbip.module

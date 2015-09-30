@@ -9,7 +9,7 @@
       <div class="row">
         <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
           <img class="img-responsive" src="<?php print base_path().path_to_theme()?>/images/table-logo.png" />
-          <br />
+          <!--<br /> -->
           <h2 class="st-title hidden-xs">Step 1: Choose Your Plan</h2>
         </div>
         <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 blue lighten-2 text-center text-white hidden-xs">
@@ -25,10 +25,10 @@
         </div>
         <!--visible on small screen -->
         <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 blue lighten-2 text-center text-white visible-xs">
-          <strong class="text-uppercase"><?php print $mobile_plan[2] ?></strong></span>
+          <strong class="text-uppercase"><?php print $mobile_plan[2] ?></strong>
         </div>
         <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 amber lighten-1 text-center visible-xs">
-          <strong class="text-uppercase"><?php print $mobile_plan[1] ?></strong></span>
+          <strong class="text-uppercase"><?php print $mobile_plan[1] ?></strong>
         </div>
         <!--visible on small screen end -->
       </div>

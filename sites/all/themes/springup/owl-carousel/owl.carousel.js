@@ -404,7 +404,7 @@ if (typeof Object.create !== "function") {
 
         buildButtons : function () {
             var base = this,
-                buttonsWrapper = $("<div class=\"owl-buttons\"/>");
+                buttonsWrapper = $("<div class=\"owl-buttons visible-xs\"/>");
             base.owlControls.append(buttonsWrapper);
 
             base.buttonPrev = $("<div/>", {
@@ -438,7 +438,7 @@ if (typeof Object.create !== "function") {
         buildPagination : function () {
             var base = this;
 
-            base.paginationWrapper = $("<div class=\"owl-pagination\"/>");
+            base.paginationWrapper = $("<div class=\"owl-pagination hidden-xs\"/>");
             base.owlControls.append(base.paginationWrapper);
 
             base.paginationWrapper.on("touchend.owlControls mouseup.owlControls", ".owl-page", function (event) {

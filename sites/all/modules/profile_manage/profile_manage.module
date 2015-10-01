@@ -93,7 +93,7 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
   if($form_id == 'user_profile_form') {
     
     if($form['#user_category'] == 'my_work' && !empty($form['#user']->uid)) {
-      //$form['#after_build'][] = 'profile_manage_form_after_build';
+      $form['#validate'][] = 'my_work_form_validate';
     }
     
     drupal_set_title('My Profile');
@@ -218,31 +218,9 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
   }
   
 }
-
-function profile_manage_form_after_build($element, &$form_state) {
-  // Check that the form has been submitted.
-  if ($form_state['process_input']) {
-    // Deal with required fields.
-    _profile_manage_remove_required($element);
-  }
-  return $element;
-}
-
-function _profile_manage_remove_required(&$elements) {
-  // Recurse through all children.
-  echo '<pre>';
-   print_r($elements);die;
-  //$elements['profile_my_work']['field_public_status']['#default_value'];
-  //$elements['profile_my_work']['field_public_status']['und']['#entity']->field_public_status['und'][0]['value'];
-  foreach (element_children($elements) as $key) { 
-    
-    if (isset($elements[$key]) && $elements[$key]) {
-      _profile_manage_remove_required($elements[$key]);
-    }
-  }
-  if (!empty($elements['#required'])) {
-    $elements['#required'] = FALSE;
-  }
+function my_work_form_validate($form, &$form_state) {
+	print_r($form_state['values']);
+	die;
 }
 
 

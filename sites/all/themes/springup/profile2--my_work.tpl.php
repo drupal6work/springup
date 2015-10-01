@@ -41,14 +41,15 @@
     <div id="profileImage-slider" class="owl-carousel margin-bottom">
       <?php
         $count = 0;
-        foreach ($content['field_work_image'] as $key => $image) {
-          if (is_numeric($key)) {
-            $count = $count + 1;
-            $image['#image_style'] = 'my_work_slide';
-            print '<div class="item">' . render($image) . '</div>';
-          }
-        }
-
+		if(!empty($content['field_work_image'])) {
+			foreach ($content['field_work_image'] as $key => $image) {
+			  if (is_numeric($key)) {
+				$count = $count + 1;
+				$image['#image_style'] = 'my_work_slide';
+				print '<div class="item">' . render($image) . '</div>';
+			  }
+			}
+		}
         if ($count < 4) {
           $remain = 4 - $count;
           if ($remain > 0) {

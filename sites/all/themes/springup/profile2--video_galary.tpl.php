@@ -59,11 +59,13 @@
     </h1>
     <div id="owl-video" class="owl-carousel owl-theme">
       <?php
-        foreach ($content['field_show_case'] as $key => $video) {
-          if (is_numeric($key)) {
-            print '<div class="item">' . render($video) . '</div>';
-          }
-        }
+	    if(!empty($content['field_show_case'])) {
+			foreach ($content['field_show_case'] as $key => $video) {
+			  if (is_numeric($key)) {
+				print '<div class="item">' . render($video) . '</div>';
+			  }
+			}
+		}
       ?>
     </div>
   </div>

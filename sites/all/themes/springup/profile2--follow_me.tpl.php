@@ -100,7 +100,7 @@
               <?php } ?>
           </h3>
           <div class="col-md-6 follow-locations">
-            <p><?php print $others->field_locations['und'][0]['value']; ?></p>
+            <p><?php print @$others->field_locations['und'][0]['value']; ?></p>
           </div>
         </div>
         <div class="row white">

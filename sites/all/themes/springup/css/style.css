@@ -1414,10 +1414,14 @@ click-wave { 0% {
 	padding-top:20px;
 	font-size:17px;
 } 
-.page-node-44 .page-show-web {
+.page-node-44 .page-show-web,
+.page-node-191 .page-show-web,
+.page-node-210 .page-show-web{
 	margin-top:-72px;
 }
-.page-node-44 .main-title-page
+.page-node-44 .main-title-page,
+.page-node-191 .main-title-page,
+.page-node-210 .main-title-page
  {
 	margin:0 !important;
 	max-width:100%;
@@ -1429,25 +1433,33 @@ click-wave { 0% {
 	margin-bottom:-70px !important;
 	
 }
-.page-node-44.node-type-page .content {
+.page-node-44.node-type-page .content,
+.page-node-191.node-type-page .content,
+.page-node-210.node-type-page .content {
 	background:none;
 	margin:0 auto;
 	padding:50px 15px;
 	max-width:1170px;
 	color:#474747;
 }
-.page-node-44.node-type-page .content h3.small-title {
+.page-node-44.node-type-page .content h3.small-title,
+.page-node-191.node-type-page .content h3.small-title,
+.page-node-210.node-type-page .content h3.small-title {
 	font-size:17px;
 	font-weight:600;
 	color:#474747;
 	margin-top:35px;
 }
-.page-node-44.node-type-page .content h2.block-title {
+.page-node-44.node-type-page .content h2.block-title,
+.page-node-191.node-type-page .content h2.block-title,
+.page-node-210.node-type-page .content h2.block-title {
 	padding-bottom:25px;
 	color:#474747;
 }
 
-body.not-front.page-node-44 #page-title {
+body.not-front.page-node-44 #page-title,
+body.not-front.page-node-191 #page-title,
+body.not-front.page-node-210 #page-title {
 	font-size:105px;
 	color:#ffffff;
 	text-shadow:4px 4px 1px #4a4846;
@@ -1906,10 +1918,14 @@ body.not-front.page-taxonomy .main-title-page #page-title {
   margin-top:8px;
 }
 #springCrousel { margin-bottom:0;}
-.page-node-44 .main-title-page {
+.page-node-44 .main-title-page,
+.page-node-191 .main-title-page,
+.page-node-210 .main-title-page {
 	min-height:200px;
 }
-body.not-front.page-node-44 #page-title {
+body.not-front.page-node-44 #page-title,
+body.not-front.page-node-191 #page-title, 
+body.not-front.page-node-210 #page-title {
 	font-size:55px;
 	top:62%;
 }
@@ -1918,7 +1934,9 @@ body.not-front.page-node-44 #page-title {
 	padding-bottom:200px;
 	background-position:center bottom;
 }
-.page-node-44 .page-show-web .block-title {
+.page-node-44 .page-show-web .block-title,
+.page-node-191 .page-show-web .block-title, 
+.page-node-210 .page-show-web .block-title {
 	font-size:28px;
 }
 .view-our-team-of-experts .view-content .views-row {

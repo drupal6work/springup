@@ -7,27 +7,27 @@
 function dbip_init() {
   $white_list = array();
 
-  if($_GET['q'] != 'node/44' && $_GET['q'] != 'about-us' && arg(0) != 'admin' && !in_array($_SERVER['REMOTE_ADDR'], $white_list )) {
+  if($_GET['q'] == 'sign-up' && user_is_anonymous() && !in_array($_SERVER['REMOTE_ADDR'], $white_list )) {
     $country = select_ip($_SERVER['REMOTE_ADDR']);
     if(empty($country)) {
       $url = 'http://api.db-ip.com/addrinfo';
       $data = array(
-              'addr' => $_SERVER['REMOTE_ADDR'],
-              'api_key' => '074b3bd720b14be9be99682e3ba48e8d8af24e32',
+        'addr' => $_SERVER['REMOTE_ADDR'],
+        'api_key' => '074b3bd720b14be9be99682e3ba48e8d8af24e32',
       );
       $url = url($url, array('query' => $data));
       $response = drupal_http_request($url);
+      
       watchdog('DBIP_RESPONSE', 'DATA='. $response->data);
+      
       $resp = json_decode($response->data);
       if($resp->country == 'AU') {
-              drupal_write_record('dbip', $resp);
+        drupal_write_record('dbip', $resp);
       }else {
-              drupal_goto('about-us');
+        drupal_goto('oops');
       }
-      //$address = $resp->address;
-      //$country = $resp->country;
     }else if(!empty($country) && $country != 'AU') {
-      drupal_goto('about-us');
+      drupal_goto('oops');
     }
   }
 }

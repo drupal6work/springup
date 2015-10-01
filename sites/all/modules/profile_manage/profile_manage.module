@@ -95,6 +95,28 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
     if($form['#user_category'] == 'my_work' && !empty($form['#user']->uid)) {
       $form['#validate'][] = 'my_work_form_validate';
     }
+	
+	if($form['#user_category'] == 'my_section' && !empty($form['#user']->uid)) {
+      $form['#validate'][] = 'my_section_form_validate';
+    }
+	
+	if($form['#user_category'] == 'sales_promotions' && !empty($form['#user']->uid)) {
+      $form['#validate'][] = 'sales_promotions_form_validate';
+    }
+	
+	if($form['#user_category'] == 'video_galary' && !empty($form['#user']->uid)) {
+      $form['#validate'][] = 'video_galary_form_validate';
+    }
+	
+	if($form['#user_category'] == 'awards_certificates' && !empty($form['#user']->uid)) {
+      $form['#validate'][] = 'awards_certificates_form_validate';
+    }
+	
+	if($form['#user_category'] == 'others' && !empty($form['#user']->uid)) {
+      $form['#validate'][] = 'others_form_validate';
+    }
+	
+	
     
     drupal_set_title('My Profile');
     if(isset($_GET['pass-reset-token'])){
@@ -219,11 +241,90 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
   
 }
 function my_work_form_validate($form, &$form_state) {
-	print_r($form_state['values']);
-	die;
+	$status = $form_state['values']['profile_my_work']['field_public_status']['und'][0]['value'];
+	if($status) {
+		$fid = $form_state['values']['profile_my_work']['field_work_image']['und'][0]['fid'];
+		if(empty($fid)) {
+			form_set_error('profile_my_work][field_work_image][und][0][fid', t('Please upload at-least one image to make it publish'));
+		}
+	}
 }
 
+function my_section_form_validate($form, &$form_state) {
+	$status = $form_state['values']['profile_my_section']['field_public_status']['und'][0]['value'];
+	if($status) {
+	  $heading = $form_state['values']['profile_my_section']['field_section_heading']['und'][0]['value'];
+	  $image = $form_state['values']['profile_my_section']['field_section_image']['und'][0]['fid'];
+	  $description = $form_state['values']['profile_my_section']['field_section_description']['und'][0]['value'];
+	  if(empty($heading) || empty($image) || empty($description)) {
+		form_set_error('', t('Please enter all values to make it publish.'));
+	  }
+	}
+}
 
+function sales_promotions_form_validate($form, &$form_state) {
+	$status = $form_state['values']['profile_sales_promotions']['field_public_status']['und'][0]['value'];
+	if($status) {
+		$image = $form_state['values']['profile_sales_promotions']['field_sales_promotions']['und'][0];
+		$fid = $image['field_promotion_image']['und'][0]['fid'];
+		if(empty($fid)) {
+			form_set_error('', t('Please upload at-least one image to make it publish'));
+		}
+	}
+}
+
+function video_galary_form_validate($form, &$form_state) {
+	$status = $form_state['values']['profile_video_galary']['field_public_status']['und'][0]['value'];
+	if($status) {
+		$video_url = $form_state['values']['profile_video_galary']['field_show_case']['und'];
+		$video = TRUE;
+		if(!empty($video_url)) {
+			foreach($video_url as $v) {
+				if(!empty($v['video_url'])) {
+					$video = FALSE;
+				}
+			}
+		}
+		$featured_url = $form_state['values']['profile_video_galary']['field_featured_show_case']['und'][0]['video_url'];
+		if( $video && empty($featured_url)) {
+			form_set_error('', t('Please upload at-least one video to make it publish'));
+		}
+	}
+}
+
+function awards_certificates_form_validate($form, &$form_state) {
+	$status = $form_state['values']['profile_awards_certificates']['field_public_status']['und'][0]['value'];
+	if($status) {
+		$awards = $form_state['values']['profile_awards_certificates']['field_awards_certificates']['und'];
+		$fid = TRUE;
+		$award = TRUE;
+		if(!empty($awards)) {
+			foreach($awards as $aw) {
+				if(!empty($aw['field_award_image']['und'][0]['fid'])) {
+					$fid = FALSE;
+				}
+				if(!empty($aw['field_about_award']['und'][0]['value'])) {
+					$award = FALSE;
+				}
+			}
+		}
+		
+		if( $fid && $award ) {
+			form_set_error('', t('Please enter all values to make it publish.'));
+		}		
+	}
+}
+
+function others_form_validate($form, &$form_state) {
+	$status = $form_state['values']['profile_others']['field_public_status']['und'][0]['value'];
+	if($status) {
+		$payment = $form_state['values']['profile_others']['field_payment']['und'];
+		$locations = @$form_state['values']['profile_others']['field_locations']['und'][0]['value'];
+		if(empty($payment) && empty($locations)) {
+			form_set_error('', t('Please enter at-least one value to make it publish'));
+		}
+	}
+}
 
 function profile_manage_password_confirm(&$element) {
   $element['pass1']['#title'] = t("New Password");

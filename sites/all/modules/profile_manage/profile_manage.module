@@ -178,12 +178,14 @@ function profile_manage_form_alter(&$form, $form_state, $form_id) {
 
         $form['mimemail']['#prefix'] = '<div style="display:none;">';
         $form['mimemail']['#suffix'] = '</div>';
+        $form['field_newsletter_subscribe']['#prefix'] = '<div style="display:none;">';
+        $form['field_newsletter_subscribe']['#suffix'] = '</div>';
         
         $element_info = element_info('password_confirm');
         $process = $element_info['#process'];
         $process[] = 'profile_manage_password_confirm';
         $form['account']['pass']['#process'] =  $process;
-		
+	
       
       }else {
        drupal_set_title('General Settings');
